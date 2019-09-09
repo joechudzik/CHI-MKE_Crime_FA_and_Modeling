@@ -11,18 +11,19 @@ library(MASS)
 # cleans global library
 rm(list=ls())
 
-mke_data <- read.csv("/Users/Joey/Desktop/Snowden/MKE Factors Update_for Shion and Joe.csv")
-chi_data <- read.csv("/Users/Joey/Desktop/Snowden/CHI Factors Update_for Shion and Joe.csv")
-chi_unemployed_fixedCol <- read.csv("/Users/Joey/Desktop/Snowden/Unemployed CHI (Fixed).csv")
-metadata <- read.csv("/Users/Joey/Desktop/Snowden/CHI_MKE_Metadata.csv")
+mke_data <- read.csv("/Users/Joey/Desktop/Snowden/Data/MKE Factors Update_for Shion and Joe.csv")
+chi_data_orig <- read.csv("/Users/Joey/Desktop/Snowden/Data/CHI Factors Update_for Shion and Joe.csv")
+chi_unemployed_fixedCol <- read.csv("/Users/Joey/Data/Desktop/Snowden/Unemployed CHI (Fixed).csv")
+metadata <- read.csv("/Users/Joey/Desktop/Snowden/Data/CHI_MKE_Metadata.csv")
+
+# found wrong values in original CHI dataset. This next line contains the corrected CHI dataset
+#
+chi_data_new <- read.delim("/Users/Joey/Desktop/CHI Factors Update_for Shion and Joe_corrected.csv")
 
 # Removing first NA column so full dataset operations dont fail
 mke_data$D_R <- NULL
-chi_data$D_R <- NULL
-
-#
-# Fixing error in CHI dataset
-#
+chi_data_orig$D_R <- NULL
+chi_data_new$D_R <- NULL
 
 
 #
@@ -63,18 +64,22 @@ print(fourfactor_mke$loadings, cutoff=0.5)
 #
 
 # correlation of variables in full CHI dataset
-corrplot(cor(chi_data, use="complete.obs"), order="hclust", tl.col="black", tl.ce=.75)
+corrplot(cor(new_chi, use="complete.obs"), order="hclust", tl.col="black", tl.ce=.75)
 
 # building new dataframes to include only socioeconomic variables along with pclag and vclag variables
 #
-chi_data.props <- chi_data[14:18]
-chi_data.props$HispProp <- chi_data$HispProp
-chi_data.props$Unemployed <- chi_data$Unemployed
-chi_data.props$Inc75K_ <- chi_data$Inc75K_
-chi_data.props$BAup <- chi_data$BAup
-chi_data.props$SSIProp <- chi_data$SSIProp
-chi_data.props$BelowProp <- chi_data$BelowProp
-chi_data.props$SameProp <- chi_data$SameProp
+
+chi_data.props <- chi_data_new[14:26]
+chi_data.props <- chi_data.props[ -c(6) ]
+
+# chi_data.props <- chi_data[14:18]
+# chi_data.props$HispProp <- chi_data$HispProp
+# chi_data.props$Unemployed <- chi_data$Unemployed
+# chi_data.props$Inc75K_ <- chi_data$Inc75K_
+# chi_data.props$BAup <- chi_data$BAup
+# chi_data.props$SSIProp <- chi_data$SSIProp
+# chi_data.props$BelowProp <- chi_data$BelowProp
+# chi_data.props$SameProp <- chi_data$SameProp
 
 chi_data_withCrime <- chi_data.props
 chi_data_withCrime$Violent <- chi_data$Violent

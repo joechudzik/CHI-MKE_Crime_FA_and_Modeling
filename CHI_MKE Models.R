@@ -8,13 +8,15 @@ library(dplyr)
 library(nnet)
 library(MASS)
 
-mke_data <- read.csv("/Users/Joey/Desktop/Snowden/MKE Factors Update_for Shion and Joe.csv")
-chi_data <- read.csv("/Users/Joey/Desktop/Snowden/CHI Factors Update_for Shion and Joe.csv")
-metadata <- read.csv("/Users/Joey/Desktop/Snowden/CHI_MKE_Metadata.csv")
+mke_data <- read.csv("/Users/Joey/Desktop/Snowden/Data/MKE Factors Update_for Shion and Joe.csv")
+chi_data <- read.csv("/Users/Joey/Desktop/Snowden/Data/CHI Factors Update_for Shion and Joe.csv")
+metadata <- read.csv("/Users/Joey/Desktop/Snowden/Data/CHI_MKE_Metadata.csv")
+new_chi <- read.delim("/Users/Joey/Desktop/CHI Factors Update_for Shion and Joe_corrected.csv")
 
-# Removing first NA column so full dataset operations dont fail
+  # Removing first NA column so full dataset operations dont fail
 mke_data$D_R <- NULL
 chi_data$D_R <- NULL
+new_chi$D_R <- NULL
 
 #
 # MILWAUKEE MODELS
@@ -33,6 +35,13 @@ disadvantage_mke <- rowMeans(mke_data %>% dplyr::select(BelowProp, SSIProp, Mand
 immigration_mke <- rowMeans(mke_data %>% dplyr::select(HispProp, ForeignPro) * immigration_mke_fl)
 resStability_mke <- rowMeans(mke_data %>% dplyr::select(OwnerProp, SameProp) * resStability_mke_fl)
 affluence_mke <- rowMeans(mke_data %>% dplyr::select(BAup, OccuProp) * affluence_mke_fl)
+
+disadvantage_mke <- disadvantage_mke[ -c(1, 24, 238, 239) ]
+immigration_mke <- immigration_mke[ -c(1, 24, 238, 239) ]
+resStability_mke <- resStability_mke[ -c(1, 24, 238, 239) ]
+affluence_mke <- affluence_mke[ -c(1, 24, 238, 239) ]
+mke_data <- mke_data[ -c(1, 24, 238, 239), ]
+
 
 # creates population density vector
 #
@@ -65,17 +74,18 @@ mke_violent_model_lm <- lm(mke_violent_modelFrame$mke_data.Violent ~ disadvantag
 summary(mke_property_model_lm)
 summary(mke_violent_model_lm)
 
+
+mke_property_modelFrame <- mke_property_modelFrame[ -c(1, 24, 238, 239), ]
 # negative binomial models
 #
-# throws an error: does not like the 0 values in certain socioeconomic categories
-# rows 1, 24, 238, & 239 have 0.0000 in all socioeconomic categories of the mke_data dataset
-#
 mke_property_model_nb <- glm.nb(mke_property_modelFrame$mke_data.Property ~ disadvantage_mke + immigration_mke +
-                                  resStability_mke + affluence_mke+populationDensity_mke + mke_data.pclag + 
-                                  mke_data.EthnHerter, data=mke_property_modelFrame)
+                                resStability_mke + affluence_mke + mke_data.pclag + populationDensity_mke + 
+                                mke_data.EthnHerter, data=mke_property_modelFrame)
+
+
 mke_violent_model_nb <- glm.nb(mke_violent_modelFrame$mke_data.Violent ~ disadvantage_mke + immigration_mke +
-                                 resStability_mke + affluence_mke + populationDensity_mke + mke_data.vclag + 
-                                 mke_data.EthnHerter, data=mke_violent_modelFrame)
+                               resStability_mke + affluence_mke + mke_data.vclag + populationDensity_mke + 
+                               mke_data.EthnHerter, data=mke_violent_modelFrame)
 summary(mke_property_model_nb)
 summary(mke_violent_model_nb)
 
@@ -87,15 +97,15 @@ summary(mke_violent_model_nb)
 # Loadings found through factor analysis
 # affluence, immigration measure, economic disadvantage, residential stability
 #
-disadvantage_chi_fl <- c(0.8, 0.8, 0.7, 0.6)
-affluence_chi_fl <- c(0.8, 0.7, 0.7, -0.5)
-immigration_chi_fl <- c(0.9, 0.8)
+disadvantage_chi_fl <- c(0.8, 0.8, 0.7, 0.7, -0.7, 0.7)
+affluence_chi_fl <- c(0.8, 0.7)
+immigration_chi_fl <- c(0.8, 0.8)
 resStability_chi_fl <- c(0.8, 0.7)
 
 # row means
-disadvantage_chi <- rowMeans(chi_data %>% dplyr::select(BelowProp, MandFHH_ch, SSIProp, PAIProp) * disadvantage_chi_fl)
-affluence_chi <- rowMeans(chi_data %>% dplyr::select(BAup, OccuProp, Inc75K_, Unemployed) * affluence_chi_fl)
-immigration_chi <- rowMeans(chi_data %>% dplyr::select(HispProp, ForeignPro) * immigration_chi_fl)
+disadvantage_chi <- rowMeans(chi_data %>% dplyr::select(BelowProp, MandFHH_ch, SSIProp, Unemployed_Fixed, Inc75K_, PAIProp) * disadvantage_chi_fl)
+affluence_chi <- rowMeans(chi_data %>% dplyr::select(BAup, OccuProp) * affluence_chi_fl)
+immigration_chi <- rowMeans(chi_data %>% dplyr::select(ForeignPro, HispProp) * immigration_chi_fl)
 resStability_chi <- rowMeans(chi_data %>% dplyr::select(OwnerProp, SameProp) * resStability_chi_fl)
 
 # creates population density vector
