@@ -10,7 +10,7 @@ Factor analysis was then performed on both datasets to uncover 4 distinct latent
 - Concentrated Affluence Measure
 - Residential Stability
 
-These factors above were used in conjunction with EthnHerter, population density (Total_Pop/SqMi), and the crime type's respective lag variable as separate variables to build 4 different negative binomial models. In total, each model consisted of 7 different variables which described either property or violent crimes of Milwaukee or Chicago. The following specific models were created:
+These factors above were used in conjunction with ethnic heterogeneity, population density (Total_Pop/SqMi), and the crime type's respective lag variable as separate variables to build 4 different negative binomial models. In total, each model consisted of 7 different variables which described either property or violent crimes of Milwaukee or Chicago. The following specific models were created:
 - Property crimes in Milwaukee
 - Property crimes in Chicago
 - Violent crimes in Milwaukee
