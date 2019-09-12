@@ -11,9 +11,6 @@ library(MASS)
 # cleans global library
 rm(list=ls())
 
-mke_data_orig <- read.csv("/Users/Joey/Desktop/Snowden/Data/MKE Factors Update_for Shion and Joe.csv")
-chi_data_orig <- read.csv("/Users/Joey/Desktop/Snowden/Data/CHI Factors Update_for Shion and Joe.csv")
-chi_unemployed_fixedCol <- read.csv("/Users/Joey/Data/Desktop/Snowden/Unemployed CHI (Fixed).csv")
 metadata <- read.csv("/Users/Joey/Desktop/Snowden/Data/CHI_MKE_Metadata.csv")
 
 # found wrong values in original CHI dataset. This next line contains the corrected CHI dataset
@@ -22,9 +19,6 @@ chi_data_new <- read.delim("/Users/Joey/Desktop/Snowden/Data/CHI Factors Update_
 mke_data_new <- read.csv("/Users/Joey/Desktop/Snowden/Data/MKE Factors Update_for Shion and Joe_corrected.csv")
 
 # Removing first NA column so full dataset operations dont fail
-mke_data_orig$D_R <- NULL
-chi_data_orig$D_R <- NULL
-
 mke_data_new$D_R <- NULL
 chi_data_new$D_R <- NULL
 
