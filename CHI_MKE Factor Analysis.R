@@ -11,18 +11,21 @@ library(MASS)
 # cleans global library
 rm(list=ls())
 
-mke_data <- read.csv("/Users/Joey/Desktop/Snowden/Data/MKE Factors Update_for Shion and Joe.csv")
+mke_data_orig <- read.csv("/Users/Joey/Desktop/Snowden/Data/MKE Factors Update_for Shion and Joe.csv")
 chi_data_orig <- read.csv("/Users/Joey/Desktop/Snowden/Data/CHI Factors Update_for Shion and Joe.csv")
 chi_unemployed_fixedCol <- read.csv("/Users/Joey/Data/Desktop/Snowden/Unemployed CHI (Fixed).csv")
 metadata <- read.csv("/Users/Joey/Desktop/Snowden/Data/CHI_MKE_Metadata.csv")
 
 # found wrong values in original CHI dataset. This next line contains the corrected CHI dataset
 #
-chi_data_new <- read.delim("/Users/Joey/Desktop/CHI Factors Update_for Shion and Joe_corrected.csv")
+chi_data_new <- read.delim("/Users/Joey/Desktop/Snowden/Data/CHI Factors Update_for Shion and Joe_corrected.csv")
+mke_data_new <- read.csv("/Users/Joey/Desktop/Snowden/Data/MKE Factors Update_for Shion and Joe_corrected.csv")
 
 # Removing first NA column so full dataset operations dont fail
-mke_data$D_R <- NULL
+mke_data_orig$D_R <- NULL
 chi_data_orig$D_R <- NULL
+
+mke_data_new$D_R <- NULL
 chi_data_new$D_R <- NULL
 
 
@@ -35,15 +38,15 @@ corrplot(cor(mke_data, use="complete.obs"), order="hclust", tl.col="black", tl.c
 
 # building new dataframes to include only socioeconomic variables along with pclag and vclag variables
 #
-mke_data.props <- mke_data[14:24]
-mke_data.props$SameProp <- mke_data$SameProp
+mke_data.props <- mke_data_new[14:26]
+mke_data.props <- mke_data.props[ -c(12) ]
 
 mke_data_withCrime <- mke_data.props
-mke_data_withCrime$Violent <- mke_data$Violent
-mke_data_withCrime$Property <- mke_data$Property
-mke_data_withCrime$vclag <- mke_data$vclag
-mke_data_withCrime$pclag <- mke_data$pclag
-mke_data_withCrime$EthnHerter <- mke_data$EthnHerter
+mke_data_withCrime$Violent <- mke_data_new$Violent
+mke_data_withCrime$Property <- mke_data_new$Property
+mke_data_withCrime$vclag <- mke_data_new$vclag
+mke_data_withCrime$pclag <- mke_data_new$pclag
+mke_data_withCrime$EthnHerter <- mke_data_new$EthnHerter
 
 # shows correlation of below 4 groups in a heatmap type plot
 corrplot(cor(mke_data_withCrime, use="complete.obs"), order="hclust", tl.col="black", tl.ce=.75)
@@ -71,15 +74,6 @@ corrplot(cor(new_chi, use="complete.obs"), order="hclust", tl.col="black", tl.ce
 
 chi_data.props <- chi_data_new[14:26]
 chi_data.props <- chi_data.props[ -c(6) ]
-
-# chi_data.props <- chi_data[14:18]
-# chi_data.props$HispProp <- chi_data$HispProp
-# chi_data.props$Unemployed <- chi_data$Unemployed
-# chi_data.props$Inc75K_ <- chi_data$Inc75K_
-# chi_data.props$BAup <- chi_data$BAup
-# chi_data.props$SSIProp <- chi_data$SSIProp
-# chi_data.props$BelowProp <- chi_data$BelowProp
-# chi_data.props$SameProp <- chi_data$SameProp
 
 chi_data_withCrime <- chi_data.props
 chi_data_withCrime$Violent <- chi_data$Violent
