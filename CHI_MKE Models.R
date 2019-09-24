@@ -146,14 +146,14 @@ changeNamesPropPval <- function(table){
 }
 changeNamesViolent <- function(table){
   colnames(table) <- c('Intercept', 'Econ_Disadvantage', 'Conc_Immigration', 
-                       'Res_Stability', 'Conc_Affluence', 'Pop_Density', 'pclag', 'EthnHerter')
+                       'Res_Stability', 'Conc_Affluence', 'Pop_Density', 'vclag', 'EthnHerter')
   rownames(table) <- c('MKE','CHI')
   table <- as.table(table)
   return(table)
 }
 changeNamesViolentPval <- function(table){
   colnames(table) <- c('Intercept', 'Econ_Disadvantage', 'Conc_Immigration', 
-                       'Res_Stability', 'Conc_Affluence', 'Pop_Density', 'pclag', 'EthnHerter')
+                       'Res_Stability', 'Conc_Affluence', 'Pop_Density', 'vclag', 'EthnHerter')
   rownames(table) <- c('MKE','Signif_MKE','CHI','Signif_CHI')
   table <- as.table(table)
   return(table)
