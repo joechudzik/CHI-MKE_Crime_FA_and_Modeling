@@ -1,8 +1,6 @@
 # CHI-MKE_Crime_FA_and_Modeling
 
-This repository is a research project done at Marquette University. 
-
-The project consisted of first building datasets of various statistics within the census tract boundaries of Milwaukee, WI and Chicago, IL. (Please see the CHI_MKE_Metadata file for the entire variable list of which describes the variables as well)
+This project consisted of using datasets of various statistics from violent or property crime counts to socioeconomic proportions within each census tract boundary of Milwaukee, WI and Chicago, IL. (Please see the CHI_MKE_Metadata file for the entire variable list of which describes the variables as well)
 
 Factor analysis was then performed on both datasets to uncover 4 distinct latent factors with the following predictors:
 - Concentrated Disadvantage Measure
