@@ -81,8 +81,6 @@ mke_prop_forest_wVars <- randomForest(Property ~ ., data=mke_prop_wVars_trainSet
 
 #mke_prop_forest_wVars <- randomForest(Property ~ ., data=mke_prop_wVars, importance=TRUE)
 
-
-
 # MKE Violent
 #
 # random forest with latent factors
@@ -92,7 +90,7 @@ mke_viol_wLF_trainSet <- mke_viol_modelFrame[mke_viol_wLF_sample,]
 mke_viol_wLF_validSet <- mke_viol_modelFrame[-mke_viol_wLF_sample,]
 mke_viol_forest_wLF <- randomForest(Violent ~ ., data=mke_viol_wLF_trainSet, importance=TRUE)
 
-#mke_viol_forest_wLF <- randomForest(Violent ~ ., data=mke_viol_modelFrame, importance=TRUE)
+mke_viol_forest_wLF <- randomForest(Violent ~ ., data=mke_viol_modelFrame, importance=TRUE)
 
 # random forest with variables (without binning into latent factors)
 #
@@ -101,9 +99,12 @@ mke_viol_wVars_trainSet <- mke_viol_wVars[mke_viol_wVars_sample,]
 mke_viol_wVars_validSet <- mke_viol_wVars[-mke_viol_wVars_sample,]
 mke_viol_forest_wVars <- randomForest(Violent ~ ., data=mke_viol_wVars_trainSet, importance=TRUE)
 
-#mke_viol_forest_wVars <- randomForest(Violent ~., data=mke_viol_wVars, importance=TRUE)
+#mke_viol_forest_wVars <- randomForest(Violent ~ ., data=mke_viol_wVars, importance=TRUE)
 
-mke_viol_forest_wLF
+varImpPlot(mke_viol_forest_wLF)
+
+lrtest(mke_property_model_nb, mke_violent_model_nb)
+
 
 #
 # creates table visualizations
