@@ -103,7 +103,10 @@ mke_viol_forest_wVars <- randomForest(Violent ~ ., data=mke_viol_wVars_trainSet,
 
 varImpPlot(mke_viol_forest_wLF)
 
-lrtest(mke_property_model_nb, mke_violent_model_nb)
+anova(mke_property_model_nb, mke_violent_model_nb)
+mke_prop_forest_wLF
+mke_viol_forest_wLF
+
 
 
 #

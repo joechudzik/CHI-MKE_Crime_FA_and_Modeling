@@ -1,5 +1,7 @@
 library(reshape2)
+library(formattable)
 library(tidyverse)
+library(data.table)
 library(psych)
 library(GPArotation)
 library(corrplot)
@@ -128,97 +130,165 @@ summary(chi_property_model_nb)
 summary(chi_violent_model_nb)
 
 
-# helper functions for renaming the tables
 #
-changeNamesProp <- function(table){
-  colnames(table) <- c('Intercept', 'econ_Disadvantage', 'Conc_Immigration', 
-                       'Res_Stability', 'Conc_Affluence', 'Pop_Density', 'pclag', 'EthnHerter')
-  rownames(table) <- c('MKE','CHI')
-  table <- as.table(table)
-  return(table)
+# comparing the models
+#
+
+anova(mke_property_model_nb, mke_violent_model_nb, test='Chisq')
+anova(chi_property_model_nb, chi_violent_model_nb, test='Chisq')
+
+
+# creating table for MKE property NB model
+#
+mke_prop_est <- coef(summary(mke_property_model_nb))[,1] # estimate
+mke_prop_stdErr <- coef(summary(mke_property_model_nb))[,2] # std error
+mke_prop_zVal <- coef(summary(mke_property_model_nb))[,3] # z value
+mke_prop_pVal <- coef(summary(mke_property_model_nb))[,4] # p value
+mke_prop_signifCodes <- vector() # signif codes for easier p value viewing
+for( i in 1:length(coef(summary(mke_property_model_nb))[,4])){
+  val <- coef(summary(mke_property_model_nb))[,4][i]
+  if (val < 1 && val > 0.1){
+    mke_prop_signifCodes[i] <- ' '
+  }else if(val < 0.1 && val > 0.05){
+    mke_prop_signifCodes[i] <- '.'
+  }else if(val < 0.05 && val > 0.01){
+    mke_prop_signifCodes[i] <- '*'
+  }else if(val < 0.01 && val > 0.001){
+    mke_prop_signifCodes[i] <- '**'
+  }else if(val < 0.001){
+    mke_prop_signifCodes[i] <- '***'
+  }
+  else{
+    mke_prop_signifCodes[i] <- 'NA'
+  }
 }
-changeNamesPropPval <- function(table){
-  colnames(table) <- c('Intercept', 'econ_Disadvantage', 'Conc_Immigration', 
-                       'Res_Stability', 'Conc_Affluence', 'Pop_Density', 'pclag', 'EthnHerter')
-  rownames(table) <- c('MKE','Signif_MKE','CHI','Signif_CHI')
-  table <- as.table(table)
-  return(table)
+mke_prop_table_nb <- data.table('Variables'=c('(Intercept)','Disadvantage','Immigration',
+                                              'ResStability','Affluence','PopDensity','pclag','EthnHerter'),
+                                'Estimate'=mke_prop_est,
+                                'Std. Error'=mke_prop_stdErr,
+                                'z value'=mke_prop_zVal,
+                                'p value'=mke_prop_pVal,
+                                'Signif. codes'=mke_prop_signifCodes)
+mke_prop_table_nb <- mke_prop_table_nb %>% arrange(match(Variables, c('(Intercept)','pclag','EthnHerter',
+                                                                      'PopDensity','Disadvantage','Immigration',
+                                                                      'ResStability','Affluence')))
+formattable(mke_prop_table_nb, align=c('l'),
+            list('Variables' = formatter("span",
+                                         style = x ~ style(color = ifelse(x=='pclag', 'red',ifelse(x=='PopDensity', 'green',ifelse(x=='EthnHerter', 'blue', 'black')))))))
+
+
+
+# creating table for MKE violent NB model
+mke_viol_est <- coef(summary(mke_violent_model_nb))[,1] # estimate
+mke_viol_stdErr <- coef(summary(mke_violent_model_nb))[,2] # std error
+mke_viol_zVal <- coef(summary(mke_violent_model_nb))[,3] # z value
+mke_viol_pVal <- coef(summary(mke_violent_model_nb))[,4] # p value
+mke_viol_signifCodes <- vector() # signif codes for easier p value viewing
+for( i in 1:length(coef(summary(mke_violent_model_nb))[,4])){
+  val <- coef(summary(mke_violent_model_nb))[,4][i]
+  if (val < 1 && val > 0.1){
+    mke_viol_signifCodes[i] <- ' '
+  }else if(val < 0.1 && val > 0.05){
+    mke_viol_signifCodes[i] <- '.'
+  }else if(val < 0.05 && val > 0.01){
+    mke_viol_signifCodes[i] <- '*'
+  }else if(val < 0.01 && val > 0.001){
+    mke_viol_signifCodes[i] <- '**'
+  }else if(val < 0.001){
+    mke_viol_signifCodes[i] <- '***'
+  }
+  else{
+    mke_viol_signifCodes[i] <- 'NA'
+  }
 }
-changeNamesViolent <- function(table){
-  colnames(table) <- c('Intercept', 'Econ_Disadvantage', 'Conc_Immigration', 
-                       'Res_Stability', 'Conc_Affluence', 'Pop_Density', 'vclag', 'EthnHerter')
-  rownames(table) <- c('MKE','CHI')
-  table <- as.table(table)
-  return(table)
+mke_viol_table_nb <- data.table('Variables'=c('(Intercept)','Disadvantage','Immigration',
+                                              'ResStability','Affluence','PopDensity','vclag','EthnHerter'),
+                                'Estimate'=mke_viol_est,
+                                'Std. Error'=mke_viol_stdErr,
+                                'z value'=mke_viol_zVal,
+                                'p value'=mke_viol_pVal,
+                                'Signif. codes'=mke_viol_signifCodes)
+mke_viol_table_nb <- mke_viol_table_nb %>% arrange(match(Variables, c('(Intercept)','vclag','EthnHerter',
+                                                                      'PopDensity','Disadvantage','Immigration',
+                                                                      'ResStability','Affluence')))
+formattable(mke_viol_table_nb, align=c('l'),
+            list('Variables' = formatter("span",
+                                         style = x ~ style(color = ifelse(x=='vclag', 'red',ifelse(x=='PopDensity', 'green',ifelse(x=='EthnHerter', 'blue', 'black')))))))
+
+
+# creating table for CHI property NB model
+chi_prop_est <- coef(summary(chi_property_model_nb))[,1] # estimate
+chi_prop_stdErr <- coef(summary(chi_property_model_nb))[,2] # std error
+chi_prop_zVal <- coef(summary(chi_property_model_nb))[,3] # z value
+chi_prop_pVal <- coef(summary(chi_property_model_nb))[,4] # p value
+chi_prop_signifCodes <- vector() # signif codes for easier p value viewing
+for( i in 1:length(coef(summary(chi_property_model_nb))[,4])){
+  val <- coef(summary(chi_property_model_nb))[,4][i]
+  if (val < 1 && val > 0.1){
+    chi_prop_signifCodes[i] <- ' '
+  }else if(val < 0.1 && val > 0.05){
+    chi_prop_signifCodes[i] <- '.'
+  }else if(val < 0.05 && val > 0.01){
+    chi_prop_signifCodes[i] <- '*'
+  }else if(val < 0.01 && val > 0.001){
+    chi_prop_signifCodes[i] <- '**'
+  }else if(val < 0.001){
+    chi_prop_signifCodes[i] <- '***'
+  }
+  else{
+    chi_prop_signifCodes[i] <- 'NA'
+  }
 }
-changeNamesViolentPval <- function(table){
-  colnames(table) <- c('Intercept', 'Econ_Disadvantage', 'Conc_Immigration', 
-                       'Res_Stability', 'Conc_Affluence', 'Pop_Density', 'vclag', 'EthnHerter')
-  rownames(table) <- c('MKE','Signif_MKE','CHI','Signif_CHI')
-  table <- as.table(table)
-  return(table)
+chi_prop_table_nb <- data.table('Variables'=c('(Intercept)','Disadvantage','Immigration',
+                                              'ResStability','Affluence','PopDensity','pclag','EthnHerter'),
+                                'Estimate'=chi_prop_est,
+                                'Std. Error'=chi_prop_stdErr,
+                                'z value'=chi_prop_zVal,
+                                'p value'=chi_prop_pVal,
+                                'Signif. codes'=chi_prop_signifCodes)
+chi_prop_table_nb <- chi_prop_table_nb %>% arrange(match(Variables, c('(Intercept)','pclag','EthnHerter',
+                                                                      'PopDensity','Disadvantage','Immigration',
+                                                                      'ResStability','Affluence')))
+formattable(chi_prop_table_nb, align=c('l'),
+            list('Variables' = formatter("span",
+                                         style = x ~ style(color = ifelse(x=='pclag', 'red',ifelse(x=='PopDensity', 'green',ifelse(x=='EthnHerter', 'blue', 'black')))))))
+
+# table for CHI violent NB model
+chi_viol_est <- coef(summary(chi_violent_model_nb))[,1] # estimate
+chi_viol_stdErr <- coef(summary(chi_violent_model_nb))[,2] # std error
+chi_viol_zVal <- coef(summary(chi_violent_model_nb))[,3] # z value
+chi_viol_pVal <- coef(summary(chi_violent_model_nb))[,4] # p value
+chi_viol_signifCodes <- vector() # signif codes for easier p value viewing
+for( i in 1:length(coef(summary(chi_violent_model_nb))[,4])){
+  val <- coef(summary(chi_violent_model_nb))[,4][i]
+  if (val < 1 && val > 0.1){
+    chi_viol_signifCodes[i] <- ' '
+  }else if(val < 0.1 && val > 0.05){
+    chi_viol_signifCodes[i] <- '.'
+  }else if(val < 0.05 && val > 0.01){
+    chi_viol_signifCodes[i] <- '*'
+  }else if(val < 0.01 && val > 0.001){
+    chi_viol_signifCodes[i] <- '**'
+  }else if(val < 0.001){
+    chi_viol_signifCodes[i] <- '***'
+  }
+  else{
+    chi_viol_signifCodes[i] <- 'NA'
+  }
 }
-
-# builds matrices of the coefficients from the 4 negative binomial models above
-#
-# coefficient estimate
-#
-mke_prop_coef <- coef(summary(mke_property_model_nb))[,1]
-mke_violent_coef <- coef(summary(mke_violent_model_nb))[,1]
-chi_prop_coef <- coef(summary(chi_property_model_nb))[,1]
-chi_violent_coef <- coef(summary(chi_violent_model_nb))[,1]
-property_coef <- matrix(c(mke_prop_coef, chi_prop_coef), ncol=8, byrow=TRUE)
-violent_coef <- matrix(c(mke_violent_coef, chi_violent_coef), ncol=8, byrow=TRUE)
-property_coefEstimate <- changeNamesProp(property_coef)
-violent_coefEstimate <- changeNamesViolent(violent_coef)
-
-property_coefEstimate
-violent_coefEstimate
-
-# std error
-#
-mke_prop_stderr <- coef(summary(mke_property_model_nb))[,2]
-mke_violent_stderr <- coef(summary(mke_violent_model_nb))[,2]
-chi_prop_stderr <- coef(summary(chi_property_model_nb))[,2]
-chi_violent_stderr <- coef(summary(chi_violent_model_nb))[,2]
-property_stderr <- matrix(c(mke_prop_stderr, chi_prop_stderr), ncol=8, byrow=TRUE)
-violent_stderr <- matrix(c(mke_violent_stderr, chi_violent_stderr), ncol=8, byrow=TRUE)
-property_stderr <- changeNamesProp(property_stderr)
-violent_stderr <- changeNamesViolent(violent_stderr)
-
-property_stderr
-violent_stderr
-
-# t value
-#
-mke_prop_tval <- coef(summary(mke_property_model_nb))[,3]
-mke_violent_tval <- coef(summary(mke_violent_model_nb))[,3]
-chi_prop_tval <- coef(summary(chi_property_model_nb))[,3]
-chi_violent_tval <- coef(summary(chi_violent_model_nb))[,3]
-property_tval <- matrix(c(mke_prop_tval, chi_prop_tval), ncol=8, byrow=TRUE)
-violent_tval <- matrix(c(mke_violent_tval, chi_violent_tval), ncol=8, byrow=TRUE)
-property_tval <- changeNamesProp(property_tval)
-violent_tval <- changeNamesViolent(violent_tval)
-
-property_tval
-violent_tval
-
-# p value
-#
-mke_prop_pval <- coef(summary(mke_property_model_nb))[,4]
-mke_violent_pval <- coef(summary(mke_violent_model_nb))[,4]
-chi_prop_pval <- coef(summary(chi_property_model_nb))[,4]
-chi_violent_pval <- coef(summary(chi_violent_model_nb))[,4]
-signif_mke_prop <- c('***','*',' ','.',' ','***','***','*')
-signif_mke_violent <- c('***',' ',' ','***',' ','***','***','**')
-signif_chi_prop <- c('***',' ',' ','***',' ','***','***',' ')
-signif_chi_violent <- c('***',' ',' ','***','***','***','***','.')
-property_pval <- matrix(c(mke_prop_pval, signif_mke_prop, chi_prop_pval, signif_chi_prop), ncol=8, byrow=TRUE)
-violent_pval <- matrix(c(mke_violent_pval, signif_mke_violent, chi_violent_pval, signif_chi_violent), ncol=8, byrow=TRUE)
-property_pval <- changeNamesPropPval(property_pval)
-violent_pval <- changeNamesViolentPval(violent_pval)
-
-property_pval
-violent_pval
+chi_viol_table_nb <- data.table('Variables'=c('(Intercept)','Disadvantage','Immigration',
+                                              'ResStability','Affluence','PopDensity','vclag','EthnHerter'),
+                                'Estimate'=chi_viol_est,
+                                'Std. Error'=chi_viol_stdErr,
+                                'z value'=chi_viol_zVal,
+                                'p value'=chi_viol_pVal,
+                                'Signif. codes'=chi_viol_signifCodes)
+chi_viol_table_nb <- chi_viol_table_nb %>% arrange(match(Variables, c('(Intercept)','vclag','EthnHerter',
+                                                                      'PopDensity','Disadvantage','Immigration',
+                                                                      'ResStability','Affluence')))
+formattable(chi_viol_table_nb, align=c('l'),
+            list('Variables'=formatter('span',
+                                       style = x~style(color = ifelse(x=='vclag','red',ifelse(x=='PopDensity','green',ifelse(x=='EthnHerter','blue','black')))))))
+summary(chi_violent_model_nb)
 
 
